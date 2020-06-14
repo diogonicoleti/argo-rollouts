@@ -424,6 +424,15 @@ spec:
                           required:
                           - stableIngress
                           type: object
+                        traefik:
+                          properties:
+                            annotationPrefix:
+                              type: string
+                            ingress:
+                              type: string
+                          required:
+                          - ingress
+                          type: object
                       type: object
                   type: object
               type: object
