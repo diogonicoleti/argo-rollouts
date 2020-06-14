@@ -5,14 +5,15 @@ import (
 	"testing"
 
 	"github.com/argoproj/argo-rollouts/rollout/trafficrouting/alb"
+	"github.com/argoproj/argo-rollouts/rollout/trafficrouting/istio"
+	"github.com/argoproj/argo-rollouts/rollout/trafficrouting/nginx"
+	"github.com/argoproj/argo-rollouts/rollout/trafficrouting/traefik"
 
 	"github.com/stretchr/testify/assert"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/utils/pointer"
 
 	"github.com/argoproj/argo-rollouts/pkg/apis/rollouts/v1alpha1"
-	"github.com/argoproj/argo-rollouts/rollout/trafficrouting/istio"
-	"github.com/argoproj/argo-rollouts/rollout/trafficrouting/nginx"
 	"github.com/argoproj/argo-rollouts/utils/conditions"
 	logutil "github.com/argoproj/argo-rollouts/utils/log"
 )
@@ -214,6 +215,19 @@ func TestNewTrafficRoutingReconciler(t *testing.T) {
 		networkReconciler := rc.NewTrafficRoutingReconciler(roCtx)
 		assert.NotNil(t, networkReconciler)
 		assert.Equal(t, nginx.Type, networkReconciler.Type())
+	}
+	{
+		r := newCanaryRollout("foo", 10, nil, steps, pointer.Int32Ptr(1), intstr.FromInt(1), intstr.FromInt(0))
+		r.Spec.Strategy.Canary.TrafficRouting = &v1alpha1.RolloutTrafficRouting{
+			Traefik: &v1alpha1.TraefikTrafficRouting{},
+		}
+		roCtx := &canaryContext{
+			rollout: r,
+			log:     logutil.WithRollout(r),
+		}
+		networkReconciler := rc.NewTrafficRoutingReconciler(roCtx)
+		assert.NotNil(t, networkReconciler)
+		assert.Equal(t, traefik.Type, networkReconciler.Type())
 	}
 	{
 		r := newCanaryRollout("foo", 10, nil, steps, pointer.Int32Ptr(1), intstr.FromInt(1), intstr.FromInt(0))

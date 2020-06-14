@@ -203,12 +203,23 @@ type ALBTrafficRouting struct {
 	AnnotationPrefix string `json:"annotationPrefix,omitempty"`
 }
 
+// TraefikTrafficRouting configuration for Traefik ingress controller to control traffic routing
+type TraefikTrafficRouting struct {
+	// Ingress refers to the name of an `Ingress` resource in the same namepace as the `Rollout`
+	Ingress string `json:"ingress"`
+	// AnnotationPrefix has to match the configured annotation prefix on the nginx ingress controller
+	// +optional
+	AnnotationPrefix string `json:"annotationPrefix,omitempty"`
+}
+
 // RolloutTrafficRouting hosts all the different configuration for supported service meshes to enable more fine-grained traffic routing
 type RolloutTrafficRouting struct {
 	// Istio holds Istio specific configuration to route traffic
 	Istio *IstioTrafficRouting `json:"istio,omitempty"`
 	// Nginx holds Nginx Ingress specific configuration to route traffic
 	Nginx *NginxTrafficRouting `json:"nginx,omitempty"`
+	// Traefik holds Traefik Ingress specific configuration to route traffic
+	Traefik *TraefikTrafficRouting `json:"traefik,omitempty"`
 	// Nginx holds ALB Ingress specific configuration to route traffic
 	ALB *ALBTrafficRouting `json:"alb,omitempty"`
 }

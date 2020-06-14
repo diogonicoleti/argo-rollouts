@@ -2,6 +2,7 @@ package rollout
 
 import (
 	"github.com/argoproj/argo-rollouts/rollout/trafficrouting/alb"
+	"github.com/argoproj/argo-rollouts/rollout/trafficrouting/traefik"
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/argoproj/argo-rollouts/rollout/trafficrouting/istio"
@@ -26,6 +27,15 @@ func (c *Controller) NewTrafficRoutingReconciler(roCtx rolloutContext) TrafficRo
 	}
 	if rollout.Spec.Strategy.Canary.TrafficRouting.Nginx != nil {
 		return nginx.NewReconciler(nginx.ReconcilerConfig{
+			Rollout:        rollout,
+			Client:         c.kubeclientset,
+			Recorder:       c.recorder,
+			ControllerKind: controllerKind,
+			IngressLister:  c.ingressesLister,
+		})
+	}
+	if rollout.Spec.Strategy.Canary.TrafficRouting.Traefik != nil {
+		return traefik.NewReconciler(traefik.ReconcilerConfig{
 			Rollout:        rollout,
 			Client:         c.kubeclientset,
 			Recorder:       c.recorder,
