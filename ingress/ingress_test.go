@@ -74,7 +74,8 @@ func newFakeIngressController(ing *extensionsv1beta1.Ingress, rollout *v1alpha1.
 		RolloutsInformer: i.Argoproj().V1alpha1().Rollouts(),
 		RolloutWorkQueue: rolloutWorkqueue,
 		ALBClasses:       []string{"alb"},
-		NGINXClasses:     []string{"nginx"},
+		NginxClasses:     []string{"nginx"},
+		TraefikClasses:   []string{"traefik"},
 		MetricsServer: metrics.NewMetricsServer(metrics.ServerConfig{
 			Addr:               "localhost:8080",
 			K8SRequestProvider: &metrics.K8sRequestsCountProvider{},

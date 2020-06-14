@@ -36,20 +36,21 @@ const (
 
 func newCommand() *cobra.Command {
 	var (
-		clientConfig        clientcmd.ClientConfig
-		rolloutResyncPeriod int64
-		logLevel            string
-		glogLevel           int
-		metricsPort         int
-		instanceID          string
-		rolloutThreads      int
-		experimentThreads   int
-		analysisThreads     int
-		serviceThreads      int
-		ingressThreads      int
-		istioVersion        string
-		albIngressClasses   []string
-		nginxIngressClasses []string
+		clientConfig          clientcmd.ClientConfig
+		rolloutResyncPeriod   int64
+		logLevel              string
+		glogLevel             int
+		metricsPort           int
+		instanceID            string
+		rolloutThreads        int
+		experimentThreads     int
+		analysisThreads       int
+		serviceThreads        int
+		ingressThreads        int
+		istioVersion          string
+		albIngressClasses     []string
+		nginxIngressClasses   []string
+		traefikIngressClasses []string
 	)
 	var command = cobra.Command{
 		Use:   cliName,
@@ -124,6 +125,7 @@ func newCommand() *cobra.Command {
 				k8sRequestProvider,
 				defaultIstioVersion,
 				nginxIngressClasses,
+				traefikIngressClasses,
 				albIngressClasses)
 
 			// notice that there is no need to run Start methods in a separate goroutine. (i.e. go kubeInformerFactory.Start(stopCh)
@@ -140,7 +142,8 @@ func newCommand() *cobra.Command {
 	}
 
 	defaultALBIngressClass := []string{"alb"}
-	defaultNGINXIngressClass := []string{"nginx"}
+	defaultNginxIngressClass := []string{"nginx"}
+	defaultTraefikIngressClass := []string{"traefik"}
 
 	clientConfig = addKubectlFlagsToCmd(&command)
 	command.Flags().Int64Var(&rolloutResyncPeriod, "rollout-resync", controller.DefaultRolloutResyncPeriod, "Time period in seconds for rollouts resync.")
@@ -155,7 +158,8 @@ func newCommand() *cobra.Command {
 	command.Flags().IntVar(&ingressThreads, "ingress-threads", controller.DefaultIngressThreads, "Set the number of worker threads for the Ingress controller")
 	command.Flags().StringVar(&istioVersion, "istio-api-version", defaultIstioVersion, "Set the default Istio apiVersion that controller should look when manipulating VirtualServices.")
 	command.Flags().StringArrayVar(&albIngressClasses, "alb-ingress-classes", defaultALBIngressClass, "Defines all the ingress class annotations that the alb ingress controller operates on. Defaults to alb")
-	command.Flags().StringArrayVar(&nginxIngressClasses, "nginx-ingress-classes", defaultNGINXIngressClass, "Defines all the ingress class annotations that the nginx ingress controller operates on. Defaults to nginx")
+	command.Flags().StringArrayVar(&nginxIngressClasses, "nginx-ingress-classes", defaultNginxIngressClass, "Defines all the ingress class annotations that the nginx ingress controller operates on. Defaults to nginx")
+	command.Flags().StringArrayVar(&traefikIngressClasses, "traefik-ingress-classes", defaultTraefikIngressClass, "Defines all the ingress class annotations that the traefik ingress controller operates on. Defaults to traefik")
 	return &command
 }
 

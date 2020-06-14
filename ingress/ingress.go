@@ -38,8 +38,10 @@ type ControllerConfig struct {
 	RolloutWorkQueue workqueue.RateLimitingInterface
 
 	MetricsServer *metrics.MetricsServer
-	ALBClasses    []string
-	NGINXClasses  []string
+
+	ALBClasses     []string
+	NginxClasses   []string
+	TraefikClasses []string
 }
 
 // Controller describes an ingress controller
@@ -51,8 +53,10 @@ type Controller struct {
 
 	metricServer   *metrics.MetricsServer
 	enqueueRollout func(obj interface{})
+
 	albClasses     []string
 	nginxClasses   []string
+	traefikClasses []string
 }
 
 // NewController returns a new ingress controller
@@ -66,7 +70,8 @@ func NewController(cfg ControllerConfig) *Controller {
 		ingressWorkqueue: cfg.IngressWorkQueue,
 		metricServer:     cfg.MetricsServer,
 		albClasses:       cfg.ALBClasses,
-		nginxClasses:     cfg.NGINXClasses,
+		nginxClasses:     cfg.NginxClasses,
+		traefikClasses:   cfg.TraefikClasses,
 	}
 
 	util.CheckErr(cfg.RolloutsInformer.Informer().AddIndexers(cache.Indexers{
@@ -144,7 +149,9 @@ func (c *Controller) syncIngress(key string) error {
 	case hasClass(c.albClasses, class):
 		return c.syncALBIngress(ingress, rollouts)
 	case hasClass(c.nginxClasses, class):
-		return c.syncNginxIngress(name, namespace, rollouts)
+		return c.reconcileIngress(rollouts)
+	case hasClass(c.traefikClasses, class):
+		return c.reconcileIngress(rollouts)
 	default:
 		return nil
 	}
@@ -159,7 +166,7 @@ func hasClass(classes []string, class string) bool {
 	return false
 }
 
-func (c *Controller) syncNginxIngress(name, namespace string, rollouts []*v1alpha1.Rollout) error {
+func (c *Controller) reconcileIngress(rollouts []*v1alpha1.Rollout) error {
 	for i := range rollouts {
 		// reconciling the Rollout will ensure the canaryIngress is updated or created
 		c.enqueueRollout(rollouts[i])

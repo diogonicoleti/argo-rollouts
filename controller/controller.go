@@ -107,6 +107,7 @@ func NewManager(
 	k8sRequestProvider *metrics.K8sRequestsCountProvider,
 	defaultIstioVersion string,
 	nginxIngressClasses []string,
+	traefikIngressClasses []string,
 	albIngressClasses []string,
 ) *Manager {
 
@@ -202,8 +203,9 @@ func NewManager(
 
 		MetricsServer: metricsServer,
 
-		ALBClasses:   albIngressClasses,
-		NGINXClasses: nginxIngressClasses,
+		ALBClasses:     albIngressClasses,
+		NginxClasses:   nginxIngressClasses,
+		TraefikClasses: traefikIngressClasses,
 	})
 
 	cm := &Manager{
